@@ -1,0 +1,71 @@
+"""
+Quick Start Guide for YOLOv8 Real-time Object Detection
+
+This script provides a simplified version for beginners
+"""
+
+import cv2
+from ultralytics import YOLO
+import torch
+from torch.nn import modules
+import warnings
+warnings.filterwarnings('ignore')
+
+# Fix PyTorch 2.6+ compatibility - patch torch.load to use weights_only=False
+original_load = torch.load
+def patched_load(f, *args, **kwargs):
+    kwargs['weights_only'] = False
+    return original_load(f, *args, **kwargs)
+torch.load = patched_load
+
+def main():
+    """Simplest possible real-time detection"""
+    
+    # Load model (auto-downloads if first time)
+    print("Loading YOLOv8 model...")
+    model = YOLO('yolov8n.pt')
+    
+    # Open webcam
+    print("Opening webcam...")
+    cap = cv2.VideoCapture(0)
+    
+    if not cap.isOpened():
+        print("Error: Cannot open webcam")
+        return
+    
+    print("Starting detection. Press 'q' to quit...")
+    print("="*50)
+    
+    frame_count = 0
+    
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        
+        # Run detection
+        results = model(frame, conf=0.5, verbose=False)
+        
+        # Draw results
+        annotated_frame = results[0].plot()
+        
+        # Display FPS
+        frame_count += 1
+        if frame_count % 30 == 0:
+            print(f"Processed {frame_count} frames...")
+        
+        # Show frame
+        cv2.imshow("YOLOv8 Detection", annotated_frame)
+        
+        # Exit on 'q'
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    
+    # Cleanup
+    cap.release()
+    cv2.destroyAllWindows()
+    print("Done!")
+
+
+if __name__ == "__main__":
+    main()
