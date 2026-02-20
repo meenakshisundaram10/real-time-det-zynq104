@@ -1,0 +1,37 @@
+cmake_minimum_required(VERSION 3.10)
+project(YOLOv8_Detection)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Find required packages
+find_package(OpenCV REQUIRED)
+find_package(ONNX REQUIRED)
+
+# Include directories
+include_directories(${OpenCV_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# Shared detector library source
+set(DETECTOR_SRC src/YOLOv8Detector.cpp)
+
+# Main executable - Quick Start
+add_executable(quick_start src/quick_start.cpp ${DETECTOR_SRC})
+target_link_libraries(quick_start ${OpenCV_LIBS} onnxruntime)
+target_include_directories(quick_start PRIVATE include)
+
+# Main executable - Full Featured Detection
+add_executable(detect_objects src/detect_objects.cpp ${DETECTOR_SRC})
+target_link_libraries(detect_objects ${OpenCV_LIBS} onnxruntime)
+target_include_directories(detect_objects PRIVATE include)
+
+# Custom Objects Detection
+add_executable(custom_detect src/custom_detect.cpp ${DETECTOR_SRC})
+target_link_libraries(custom_detect ${OpenCV_LIBS} onnxruntime)
+target_include_directories(custom_detect PRIVATE include)
+
+# Display build information
+message(STATUS "OpenCV version: ${OpenCV_VERSION}")
+message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
+message(STATUS "Executables will be built in: ${CMAKE_BINARY_DIR}")
+
